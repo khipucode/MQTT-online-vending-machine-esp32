@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Final MQTT Vending</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #222; color: white; max-width: 600px; margin: 0 auto; }
+        input { width: 100%; padding: 10px; margin: 5px 0; background: #333; color: #fff; border: 1px solid #555; }
+        button { padding: 15px; background: #00C851; color: white; border: none; width: 100%; cursor: pointer; font-weight: bold; font-size: 1.2rem; margin-top: 15px; }
+        #log { background: #000; color: #0f0; padding: 15px; height: 300px; overflow-y: scroll; margin-top: 20px; font-family: monospace; border: 1px solid #444; }
+    </style>
+</head>
+<body>
+    <h2>🚀 Teste de Disparo MQTT</h2>
+    
+    <label>Channel ID</label>
+    <input type="text" id="channelId" value="3267232"> <label>Client ID</label>
+    <input type="text" id="clientId" value="EB8OExcGODwwNyMgNww4MDI">
+
+    <label>Username</label>
+    <input type="text" id="username" value="EB8OExcGODwwNyMgNww4MDI">
+    
+    <label>Password</label>
+    <input type="text" id="password" value="ojSOP6n+mbg8pCrqOXbXHS/g">
+
+    <button onclick="testarConexao()">DISPARAR TESTE AGORA</button>
+
+    <div id="log">Clique no botão para testar...</div>
+
+    <script>
+        function log(msg) {
+            const div = document.getElementById('log');
+            div.innerHTML += `<div>> ${msg}</div>`;
+            div.scrollTop = div.scrollHeight;
+        }
+
+        function testarConexao() {
+            const cid = document.getElementById('clientId').value;
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const chan = document.getElementById('channelId').value;
+
+            log("Conectando ao ThingSpeak...");
+
+            // Cliente Paho
+            const client = new Paho.MQTT.Client("mqtt.thingspeak.com", 443, cid);
+
+            client.onConnectionLost = (resp) => {
+                log("❌ Conexão Perdida: " + resp.errorMessage);
+            };
+
+            client.connect({
+                useSSL: true,
+                userName: user,
+                password: pass,
+                onSuccess: () => {
+                    log("✅ CONECTADO COM SUCESSO!");
+                    log("Enviando comando de teste...");
+                    
+                    try {
+                        // Simula liberar o produto 1 do pedido 999
+                        const payload = "field1=1&field2=999&status=TESTE_OK";
+                        const topic = `channels/${chan}/publish`;
+                        
+                        const message = new Paho.MQTT.Message(payload);
+                        message.destinationName = topic;
+                        client.send(message);
+                        
+                        log("✅ MENSAGEM ENVIADA!");
+                        log("👉 Verifique o gráfico no site do ThingSpeak.");
+                        client.disconnect();
+                    } catch (e) {
+                        log("❌ Erro ao enviar: " + e.message);
+                    }
+                },
+                onFailure: (e) => {
+                    log("❌ FALHA AO CONECTAR.");
+                    log("Erro: " + e.errorMessage);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

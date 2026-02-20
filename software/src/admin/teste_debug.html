@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug MQTT ThingSpeak</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #222; color: #fff; max-width: 700px; margin: 0 auto; }
+        input { width: 100%; padding: 10px; margin: 5px 0; background: #333; color: #fff; border: 1px solid #555; }
+        button { padding: 15px; background: #e63946; color: white; border: none; width: 100%; cursor: pointer; font-weight: bold; font-size: 1.1rem; margin-top: 15px; }
+        #log { background: #000; color: #0f0; padding: 15px; height: 300px; overflow-y: scroll; margin-top: 20px; font-family: monospace; border: 1px solid #444; }
+        .aviso { background: #ffcc00; color: black; padding: 10px; margin-bottom: 10px; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>🛠️ Debug MQTT (Teste de Conexão)</h2>
+    
+    <div class="aviso">
+        ⚠️ IMPORTANTE: Desligue o ESP32 antes de testar! Se o ESP32 estiver ligado usando este ClientID, este teste vai falhar.
+    </div>
+
+    <label>Channel ID</label>
+    <input type="text" id="channelId" value="3267232">
+
+    <label>Client ID (Verifique espaços em branco)</label>
+    <input type="text" id="clientId" value="EB8OExcGODwwNyMgNww4MDI">
+
+    <label>Username</label>
+    <input type="text" id="username" value="EB8OExcGODwwNyMgNww4MDI">
+    
+    <label>Password</label>
+    <input type="text" id="password" value="ojSOP6n+mbg8pCrqOXbXHS/g">
+
+    <label><input type="checkbox" id="useSSL" checked style="width:auto;"> Usar SSL (Recomendado)</label>
+
+    <button onclick="iniciarDebug()">TESTAR CONEXÃO</button>
+
+    <div id="log">Logs do sistema...</div>
+
+    <script>
+        function log(msg) {
+            const div = document.getElementById('log');
+            div.innerHTML += `<div>> ${msg}</div>`;
+            div.scrollTop = div.scrollHeight;
+        }
+
+        function iniciarDebug() {
+            const cid = document.getElementById('clientId').value.trim(); // Trim remove espaços
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            const chan = document.getElementById('channelId').value.trim();
+            const ssl = document.getElementById('useSSL').checked;
+
+            log("--- INICIANDO TESTE ---");
+            log(`Host: mqtt.thingspeak.com`);
+            log(`Porta: ${ssl ? 443 : 80}`);
+            log(`SSL Ativado: ${ssl}`);
+            log(`Client ID: ${cid}`);
+
+            try {
+                // Cria cliente Paho
+                const client = new Paho.MQTT.Client("mqtt.thingspeak.com", ssl ? 443 : 80, cid);
+
+                // Define callbacks
+                client.onConnectionLost = (resp) => {
+                    log("❌ CONEXÃO PERDIDA.");
+                    log("Erro Código: " + resp.errorCode);
+                    log("Mensagem: " + resp.errorMessage);
+                };
+
+                const options = {
+                    useSSL: ssl,
+                    userName: user,
+                    password: pass,
+                    onSuccess: () => {
+                        log("✅ SUCESSO! CONECTADO!");
+                        log("Enviando mensagem de teste...");
+                        
+                        try {
+                            const message = new Paho.MQTT.Message("field1=0&status=DEBUG_OK");
+                            message.destinationName = `channels/${chan}/publish`;
+                            client.send(message);
+                            log("✅ Mensagem enviada para o canal " + chan);
+                            client.disconnect();
+                        } catch (e) {
+                            log("❌ Erro ao publicar: " + e.message);
+                        }
+                    },
+                    onFailure: (e) => {
+                        log("❌ FALHA NA CONEXÃO.");
+                        log("Erro: " + e.errorMessage);
+                        log("Código: " + e.errorCode);
+                        log("DICA: Se o erro for 'Socket error', verifique firewall ou se o ESP32 já está usando esse ID.");
+                    },
+                    timeout: 10 // 10 segundos timeout
+                };
+
+                log("Tentando conectar...");
+                client.connect(options);
+
+            } catch (err) {
+                log("❌ Erro Crítico JS: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

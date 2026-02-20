@@ -23,7 +23,7 @@ O sistema é construído em **PHP e MySQL** e funciona de forma assíncrona. O f
 
 ---
 
-## 📂 Estrutura de Arquivos do Projeto
+## 📂 Estrutura de Arquivos da Webapp do Projeto
 
 ```text
 /

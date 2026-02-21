@@ -146,3 +146,5 @@ Para rodar este projeto em sua totalidade, você deve configurar cada módulo se
 
 📄 **Licença e Autor**
 Desenvolvido para revolucionar a forma como interagimos com as máquinas de vendas automáticas através da Internet das Coisas.
+
+Dados extras: https://docs.google.com/document/d/138tYw3gOOYB4C3fEqaHNxyRHH1nxvoL85KSH4Srz9ds/edit?usp=sharing

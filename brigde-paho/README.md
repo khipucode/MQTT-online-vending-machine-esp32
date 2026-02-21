@@ -76,4 +76,8 @@ Para iniciar a ponte, basta rodar o script no terminal:
 ```
 python3 brigde_rest_mqtt.py
 ```
+---
+## Funcionamento
+
+<img width="800" alt="Captura de tela de 2026-02-21 13-51-56" src="https://github.com/user-attachments/assets/9122a456-eac5-497a-91f4-148301232c4f" />
 

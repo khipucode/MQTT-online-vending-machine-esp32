@@ -201,7 +201,6 @@ O projeto tenta carregar imagens nesta convenção:
 
 Se a imagem não existir, o sistema desenha um texto no lugar (PRODUTO X).
 
-
 ### 🧩 Observações Importantes
 
 - Este projeto usa Tkinter, então precisa de ambiente gráfico (Ubuntu com GUI).
@@ -211,3 +210,5 @@ Se a imagem não existir, o sistema desenha um texto no lugar (PRODUTO X).
    - ou rodar via X11 forwarding (SSH -X)
 
    - ou adaptar o projeto para modo “sem interface” (somente logs no terminal)
+
+<img width="800" alt="Captura de tela de 2026-02-20 21-59-11" src="https://github.com/user-attachments/assets/63d4bf33-3a04-4503-a471-3878054d3362" />
